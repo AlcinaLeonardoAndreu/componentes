@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Simples</title>
+    <style>
+        #player1, #player2 {
+            width: 50px;  /* Largura do jogador */
+            height: 50px; /* Altura do jogador */
+            position: absolute; /* Permite posicionamento com top e left */
+        }
+        #player1 {
+            background-color: blue; /* Cor do jogador 1 */
+            top: 100px; /* Posição inicial do jogador 1 */
+            left: 100px; /* Posição inicial do jogador 1 */
+        }
+        #player2 {
+            background-color: red; /* Cor do jogador 2 */
+            top: 100px; /* Posição inicial do jogador 2 */
+            left: 200px; /* Posição inicial do jogador 2 */
+        }
+    </style>
+</head>
+<body>
+    <div id="player1"></div> <!-- Jogador 1 -->
+    <div id="player2"></div> <!-- Jogador 2 -->
+
+    <div>
+        <button onclick="movePlayer('player1', 0, -10)">Cima</button>
+        <button onclick="movePlayer('player1', 0, 10)">Baixo</button>
+        <button onclick="movePlayer('player1', -10, 0)">Esquerda</button>
+        <button onclick="movePlayer('player1', 10, 0)">Direita</button>
+    </div>
+    <div>
+        <button onclick="movePlayer('player2', 0, -10)">Cima</button>
+        <button onclick="movePlayer('player2', 0, 10)">Baixo</button>
+        <button onclick="movePlayer('player2', -10, 0)">Esquerda</button>
+        <button onclick="movePlayer('player2', 10, 0)">Direita</button>
+    </div>
+
+    <script>
+        const player1 = document.getElementById('player1'); // Seleciona o jogador 1
+        const player2 = document.getElementById('player2'); // Seleciona o jogador 2
+
+        // Função para mover o jogador
+        function movePlayer(playerId, dx, dy) {
+            const player = document.getElementById(playerId); // Seleciona o jogador pelo ID
+            player.style.left = (parseInt(player.style.left) + dx) + 'px'; // Move horizontalmente
+            player.style.top = (parseInt(player.style.top) + dy) + 'px';   // Move verticalmente
+            checkCollision(); // Verifica colisão
+        }
+
+        // Função para verificar colisão
+        function checkCollision() {
+            const rect1 = player1.getBoundingClientRect(); // Posição do jogador 1
+            const rect2 = player2.getBoundingClientRect(); // Posição do jogador 2
+
+            // Verifica se os retângulos colidem
+            if (!(rect1.right < rect2.left || 
+                  rect1.left > rect2.right || 
+                  rect1.bottom < rect2.top || 
+                  rect1.top > rect2.bottom)) {
+                alert("COLISÃO DETECTADA"); // Alerta de colisão
+                stopGame(); // Para o jogo
+            }
+        }
+
+        // Função para parar o jogo
+        function stopGame() {
+            alert("O jogo foi finalizado."); // Alerta de fim de jogo
+            document.removeEventListener('keydown', handleKeydown); // Remove o evento de teclado
+        }
+
+        // Configuração do evento de teclado
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'w') movePlayer('player1', 0, -10); // Cima jogador 1
+            if (event.key === 's') movePlayer('player1', 0, 10);  // Baixo jogador 1
+            if (event.key === 'a') movePlayer('player1', -10, 0); // Esquerda jogador 1
+            if (event.key === 'd') movePlayer('player1', 10, 0);  // Direita jogador 1
+            if (event.key === 'ArrowUp') movePlayer('player2', 0, -10); // Cima jogador 2
+            if (event.key === 'ArrowDown') movePlayer('player2', 0, 10); // Baixo jogador 2
+            if (event.key === 'ArrowLeft') movePlayer('player2', -10, 0); // Esquerda jogador 2
+            if (event.key === 'ArrowRight') movePlayer('player2', 10, 0); // Direita jogador 2
+        });
+    </script>
+</body>
+</html>
