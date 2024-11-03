@@ -3,86 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo Simples</title>
+    <title>Jogo da colisao</title>
     <style>
-        #player1, #player2 {
-            width: 50px;  /* Largura do jogador */
-            height: 50px; /* Altura do jogador */
-            position: absolute; /* Permite posicionamento com top e left */
+        canvas {
+            border: 10px solid black;
         }
-        #player1 {
-            background-color: blue; /* Cor do jogador 1 */
-            top: 100px; /* Posição inicial do jogador 1 */
-            left: 100px; /* Posição inicial do jogador 1 */
-        }
-        #player2 {
-            background-color: red; /* Cor do jogador 2 */
-            top: 100px; /* Posição inicial do jogador 2 */
-            left: 200px; /* Posição inicial do jogador 2 */
+        .controls {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="player1"></div> <!-- Jogador 1 -->
-    <div id="player2"></div> <!-- Jogador 2 -->
-
-    <div>
-        <button onclick="movePlayer('player1', 0, -10)">Cima</button>
-        <button onclick="movePlayer('player1', 0, 10)">Baixo</button>
-        <button onclick="movePlayer('player1', -10, 0)">Esquerda</button>
-        <button onclick="movePlayer('player1', 10, 0)">Direita</button>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div class="controls">
+        <button onclick="startMovement()">Iniciar Movimento</button>
+        <button onclick="stopMovement()">Parar Movimento</button>
     </div>
-    <div>
-        <button onclick="movePlayer('player2', 0, -10)">Cima</button>
-        <button onclick="movePlayer('player2', 0, 10)">Baixo</button>
-        <button onclick="movePlayer('player2', -10, 0)">Esquerda</button>
-        <button onclick="movePlayer('player2', 10, 0)">Direita</button>
-    </div>
-
     <script>
-        const player1 = document.getElementById('player1'); // Seleciona o jogador 1
-        const player2 = document.getElementById('player2'); // Seleciona o jogador 2
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        // Função para mover o jogador
-        function movePlayer(playerId, dx, dy) {
-            const player = document.getElementById(playerId); // Seleciona o jogador pelo ID
-            player.style.left = (parseInt(player.style.left) + dx) + 'px'; // Move horizontalmente
-            player.style.top = (parseInt(player.style.top) + dy) + 'px';   // Move verticalmente
-            checkCollision(); // Verifica colisão
+        const player1 = { x: 50, y: 50, size: 30, color: 'blue', moving: { up: false, down: false, left: false, right: false } };  // Jogador da esquerda
+        const player2 = { x: 500, y: 50, size: 30, color: 'red', moving: { up: false, down: false, left: false, right: false } }; // Jogador da direita
+
+        function drawPlayers() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = player1.color;
+            ctx.fillRect(player1.x, player1.y, player1.size, player1.size);
+            ctx.fillStyle = player2.color;
+            ctx.fillRect(player2.x, player2.y, player2.size, player2.size);
         }
 
-        // Função para verificar colisão
         function checkCollision() {
-            const rect1 = player1.getBoundingClientRect(); // Posição do jogador 1
-            const rect2 = player2.getBoundingClientRect(); // Posição do jogador 2
-
-            // Verifica se os retângulos colidem
-            if (!(rect1.right < rect2.left || 
-                  rect1.left > rect2.right || 
-                  rect1.bottom < rect2.top || 
-                  rect1.top > rect2.bottom)) {
-                alert("COLISÃO DETECTADA"); // Alerta de colisão
-                stopGame(); // Para o jogo
+            if (
+                player1.x < player2.x + player2.size &&
+                player1.x + player1.size > player2.x &&
+                player1.y < player2.y + player2.size &&
+                player1.y + player1.size > player2.y
+            ) {
+                alert("COLISÃO DETECTADA");
+                stopMovement();
             }
         }
 
-        // Função para parar o jogo
-        function stopGame() {
-            alert("O jogo foi finalizado."); // Alerta de fim de jogo
-            document.removeEventListener('keydown', handleKeydown); // Remove o evento de teclado
+        function movePlayers() {
+            // Movimento do jogador 1
+            if (player1.moving.left) player1.x -= 5;
+            if (player1.moving.right) player1.x += 5;
+            if (player1.moving.up) player1.y -= 5;
+            if (player1.moving.down) player1.y += 5;
+
+            // Movimento do jogador 2
+            if (player2.moving.left) player2.x -= 5;
+            if (player2.moving.right) player2.x += 5;
+            if (player2.moving.up) player2.y -= 5;
+            if (player2.moving.down) player2.y += 5;
+
+            drawPlayers();
+            checkCollision();
         }
 
-        // Configuração do evento de teclado
+        // Controle de movimento do jogador 1 (esquerda)
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'w') movePlayer('player1', 0, -10); // Cima jogador 1
-            if (event.key === 's') movePlayer('player1', 0, 10);  // Baixo jogador 1
-            if (event.key === 'a') movePlayer('player1', -10, 0); // Esquerda jogador 1
-            if (event.key === 'd') movePlayer('player1', 10, 0);  // Direita jogador 1
-            if (event.key === 'ArrowUp') movePlayer('player2', 0, -10); // Cima jogador 2
-            if (event.key === 'ArrowDown') movePlayer('player2', 0, 10); // Baixo jogador 2
-            if (event.key === 'ArrowLeft') movePlayer('player2', -10, 0); // Esquerda jogador 2
-            if (event.key === 'ArrowRight') movePlayer('player2', 10, 0); // Direita jogador 2
+            switch (event.key) {
+                case 'a': player1.moving.left = true; break;
+                case 'd': player1.moving.right = true; break;
+                case 'w': player1.moving.up = true; break;
+                case 's': player1.moving.down = true; break;
+                case 'ArrowLeft': player2.moving.left = true; break;
+                case 'ArrowRight': player2.moving.right = true; break;
+                case 'ArrowUp': player2.moving.up = true; break;
+                case 'ArrowDown': player2.moving.down = true; break;
+            }
         });
+
+        document.addEventListener('keyup', (event) => {
+            switch (event.key) {
+                case 'a': player1.moving.left = false; break;
+                case 'd': player1.moving.right = false; break;
+                case 'w': player1.moving.up = false; break;
+                case 's': player1.moving.down = false; break;
+                case 'ArrowLeft': player2.moving.left = false; break;
+                case 'ArrowRight': player2.moving.right = false; break;
+                case 'ArrowUp': player2.moving.up = false; break;
+                case 'ArrowDown': player2.moving.down = false; break;
+            }
+        });
+
+        let movementInterval;
+
+        function startMovement() {
+            if (!movementInterval) {
+                movementInterval = setInterval(movePlayers, 100); // Atualiza a posição a cada 100ms
+            }
+        }
+
+        function stopMovement() {
+            clearInterval(movementInterval);
+            movementInterval = null;
+            alert("Movimento parado.");
+        }
+
+        drawPlayers();
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
